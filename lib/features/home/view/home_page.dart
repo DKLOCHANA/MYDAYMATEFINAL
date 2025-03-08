@@ -39,16 +39,22 @@ class HomePage extends GetView<HomeController> {
                               style:
                                   Theme.of(context).textTheme.headlineMedium),
                           Spacer(),
-                          CircleAvatar(
-                            radius: 25,
-                            backgroundColor: Colors.white,
-                            foregroundImage:
-                                AssetImage("assets/images/home/profile.png"),
-                          )
+                          GestureDetector(
+                            onTap: () => Get.toNamed('/profile'),
+                            child: CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Colors.white,
+                              foregroundImage:
+                                  AssetImage("assets/images/home/profile.png"),
+                            ),
+                          ),
                         ],
                       ),
-                      Text("Good Morning, User",
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Obx(
+                        () => Text(
+                            "Good Morning, ${controller.username.value}!",
+                            style: Theme.of(context).textTheme.titleLarge),
+                      ),
                       SizedBox(
                         height: 30,
                       ),

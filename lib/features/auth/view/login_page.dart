@@ -11,61 +11,81 @@ class LoginPage extends GetView<AuthController> {
   Widget build(BuildContext context) {
     DeviceLayout.init(context);
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(DeviceLayout.spacing(16)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: Obx(() => Stack(
             children: [
-              SizedBox(height: DeviceLayout.getProportionateScreenHeight(60)),
-              Text(
-                "Welcome Back!",
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontSize: DeviceLayout.fontSize(28),
-                    ),
-              ),
-              SizedBox(height: DeviceLayout.spacing(40)),
-              CustomTextfield(
-                controller: controller.usernameController,
-                hintText: "Username",
-              ),
-              SizedBox(height: DeviceLayout.spacing(16)),
-              Obx(() => CustomTextfield(
-                    controller: controller.passwordController,
-                    hintText: "Password",
-                    obscureText: !controller.isPasswordVisible.value,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.isPasswordVisible.value
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.all(DeviceLayout.spacing(16)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          height:
+                              DeviceLayout.getProportionateScreenHeight(60)),
+                      Text(
+                        "Welcome Back!",
+                        style:
+                            Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                  fontSize: DeviceLayout.fontSize(28),
+                                ),
                       ),
-                      onPressed: controller.togglePasswordVisibility,
-                    ),
-                  )),
-              SizedBox(height: DeviceLayout.spacing(24)),
-              ElevatedButton(
-                onPressed: controller.login,
-                child: Text(
-                  "Login",
-                  style: TextStyle(fontSize: DeviceLayout.fontSize(16)),
+                      SizedBox(height: DeviceLayout.spacing(40)),
+                      CustomTextfield(
+                        controller: controller.usernameController,
+                        hintText: "Email",
+                      ),
+                      SizedBox(height: DeviceLayout.spacing(16)),
+                      Obx(() => CustomTextfield(
+                            controller: controller.passwordController,
+                            hintText: "Password",
+                            obscureText: !controller.isPasswordVisible.value,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                controller.isPasswordVisible.value
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                              ),
+                              onPressed: controller.togglePasswordVisibility,
+                            ),
+                          )),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: controller.showForgotPasswordDialog,
+                          child: Text("Forgot Password?"),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: controller.login,
+                        child: Text(
+                          "Login",
+                          style: TextStyle(fontSize: DeviceLayout.fontSize(16)),
+                        ),
+                      ),
+                      SizedBox(height: DeviceLayout.spacing(24)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Don't have an account?"),
+                          TextButton(
+                            onPressed: controller.goToRegister,
+                            child: const Text("Register"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: DeviceLayout.spacing(24)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  TextButton(
-                    onPressed: controller.goToRegister,
-                    child: const Text("Register"),
+              if (controller.isLoading.value)
+                Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
                   ),
-                ],
-              ),
+                ),
             ],
-          ),
-        ),
-      ),
+          )),
     );
   }
 }

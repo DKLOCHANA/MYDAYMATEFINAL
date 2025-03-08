@@ -11,6 +11,8 @@ import 'package:mydaymate/features/onboard/view/onboard_page.dart';
 import 'package:mydaymate/features/auth/view/register_page.dart';
 import 'package:mydaymate/features/auth/view/login_page.dart';
 import 'package:mydaymate/features/auth/binding/auth_binding.dart';
+import 'package:mydaymate/features/profile/binding/profile_binding.dart';
+import 'package:mydaymate/features/profile/view/profile_page.dart';
 
 abstract class AppPages {
   static final List<GetPage> pages = [
@@ -51,6 +53,11 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.addExpense,
       page: () => const AddExpencesPage(),
+    ),
+    GetPage(
+      name: AppRoutes.profile,
+      page: () => const ProfilePage(),
+      binding: ProfileBinding(),
     ),
   ];
 }
