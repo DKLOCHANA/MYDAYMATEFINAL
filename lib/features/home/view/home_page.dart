@@ -114,6 +114,19 @@ class HomePage extends GetView<HomeController> {
                 onPressed: () => Get.toNamed(AppRoutes.taskList),
                 child: Icon(Icons.add_task),
               ),
+              FloatingActionButton(
+                onPressed: () => Get.toNamed(AppRoutes.financial),
+                child: Icon(Icons.money),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => Get.toNamed(AppRoutes.grocery),
+                icon: const Icon(Icons.shopping_cart),
+                label: const Text('Grocery Planner'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
             ],
           ),
         ),

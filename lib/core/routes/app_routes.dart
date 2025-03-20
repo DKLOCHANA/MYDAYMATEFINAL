@@ -11,6 +11,8 @@ abstract class AppRoutes {
   static const String addTask = '/add-task';
   static const String todoList = '/todo-list';
   static const String taskList = '/task-list';
+  static const String grocery = '/grocery';
+  static const String groceryItems = '/grocery-items';
 
   // Add more routes as needed
 }

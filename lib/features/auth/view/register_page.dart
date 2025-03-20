@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mydaymate/core/theme/app_colors.dart';
+
 import '../../../widgets/custom_textfield.dart';
 import '../controller/auth_controller.dart';
 import '../../../core/utils/devices.dart';

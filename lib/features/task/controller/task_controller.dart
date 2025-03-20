@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:mydaymate/features/task/controller/task_list_controller.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import '../model/task_model.dart';
 
 class TaskController extends GetxController {
