@@ -8,6 +8,9 @@ abstract class AppRoutes {
   static const String financial = '/financial';
   static const String addIncome = '/add-income';
   static const String addExpense = '/add-expense';
+  static const String addTask = '/add-task';
+  static const String todoList = '/todo-list';
+  static const String taskList = '/task-list';
 
   // Add more routes as needed
 }

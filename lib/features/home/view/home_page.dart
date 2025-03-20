@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mydaymate/core/routes/app_routes.dart';
 import 'package:mydaymate/widgets/home_card.dart';
 import '../controller/home_controller.dart';
 
@@ -109,6 +110,10 @@ class HomePage extends GetView<HomeController> {
                 ),
               ),
               MealPlannerContainer(),
+              FloatingActionButton(
+                onPressed: () => Get.toNamed(AppRoutes.taskList),
+                child: Icon(Icons.add_task),
+              ),
             ],
           ),
         ),

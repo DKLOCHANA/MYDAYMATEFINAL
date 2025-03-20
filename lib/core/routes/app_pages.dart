@@ -13,6 +13,10 @@ import 'package:mydaymate/features/auth/view/login_page.dart';
 import 'package:mydaymate/features/auth/binding/auth_binding.dart';
 import 'package:mydaymate/features/profile/binding/profile_binding.dart';
 import 'package:mydaymate/features/profile/view/profile_page.dart';
+import 'package:mydaymate/features/task/binding/task_binding.dart';
+import 'package:mydaymate/features/task/binding/task_list_binding.dart';
+import 'package:mydaymate/features/task/view/task_create_page.dart';
+import 'package:mydaymate/features/task/view/task_list_page.dart';
 
 abstract class AppPages {
   static final List<GetPage> pages = [
@@ -58,6 +62,21 @@ abstract class AppPages {
       name: AppRoutes.profile,
       page: () => const ProfilePage(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.addTask,
+      page: () => const TaskCreatePage(),
+      binding: TaskBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.taskList,
+      page: () => const TaskListPage(),
+      binding: TaskListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.todoList,
+      page: () => const TaskListPage(),
+      binding: TaskListBinding(),
     ),
   ];
 }
