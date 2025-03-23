@@ -1,30 +1,21 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    as fln;
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:mydaymate/features/chatbot/model/chatbot_model.dart';
+import 'package:mydaymate/features/chatbot/service/gemini_service.dart';
 
 class ChatbotController extends GetxController {
-  // OpenAI API configuration
-  static const String apiKey =
-      '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'; // Replace with your actual API key
-  static const String apiUrl = 'https://api.openai.com/v1/chat/completions';
+  // Gemini service
+  final GeminiService _geminiService = GeminiService();
 
   // Chat state
   final RxList<Message> messages = <Message>[].obs;
   final Rx<UserProfile> userProfile = UserProfile().obs;
   final RxBool isLoading = false.obs;
   final RxBool isFirstTime = true.obs;
-
-  // Notification plugin
-  final fln.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      fln.FlutterLocalNotificationsPlugin();
 
   // Onboarding questions
   final List<String> onboardingQuestions = [
@@ -51,7 +42,6 @@ class ChatbotController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    tz_data.initializeTimeZones(); // Initialize timezones
     initializeNotifications();
     loadUserProfile();
     loadChatHistory();
@@ -66,39 +56,13 @@ class ChatbotController extends GetxController {
 
   // Initialize notifications
   Future<void> initializeNotifications() async {
-    const fln.AndroidInitializationSettings initializationSettingsAndroid =
-        fln.AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    final fln.DarwinInitializationSettings initializationSettingsIOS =
-        fln.DarwinInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-    );
-
-    final fln.InitializationSettings initializationSettings =
-        fln.InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
-
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (fln.NotificationResponse response) {
-        // Handle notification tap
-        Get.toNamed('/chatbot');
-      },
-    );
-
-    // Request iOS permissions
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            fln.IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+    // Check notification permission
+    await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        // Request permission
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
   }
 
   // Load user profile from SharedPreferences
@@ -294,7 +258,7 @@ class ChatbotController extends GetxController {
     }
   }
 
-  // Generate response using ChatGPT API
+  // Generate response using Gemini API
   Future<void> generateBotResponse(String userMessage) async {
     isLoading.value = true;
 
@@ -310,36 +274,16 @@ Use this information to personalize your responses and provide helpful suggestio
 Be friendly, supportive, and concise. If asked about topics outside the user's data, you can ask follow-up questions to learn more about them.
 """;
 
-      // Create the API request
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $apiKey',
-        },
-        body: json.encode({
-          'model': 'gpt-3.5-turbo',
-          'messages': [
-            {'role': 'system', 'content': systemPrompt},
-            {'role': 'user', 'content': userMessage},
-          ],
-          'temperature': 0.7,
-          'max_tokens': 150,
-        }),
+      // Call the Gemini API through our service
+      final response = await _geminiService.generateResponse(
+        userMessage,
+        context: systemPrompt,
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final botResponse = data['choices'][0]['message']['content'].toString();
-        addBotMessage(botResponse);
-      } else {
-        // Handle API error
-        print('Error: ${response.statusCode}, ${response.body}');
-        addBotMessage(
-            "I'm having trouble connecting to my brain. Please try again later.");
-      }
+      // Add the response to chat
+      addBotMessage(response);
     } catch (e) {
-      print('Exception when calling API: $e');
+      print('Exception when generating response: $e');
       addBotMessage("Sorry, I encountered an error. Please try again.");
     } finally {
       isLoading.value = false;
@@ -350,7 +294,7 @@ Be friendly, supportive, and concise. If asked about topics outside the user's d
   void scheduleRoutineNotifications() {
     try {
       // Cancel existing notifications
-      flutterLocalNotificationsPlugin.cancelAll();
+      AwesomeNotifications().cancelAll();
 
       // Get user routine times
       final wakeupTime = userProfile.value.dailyRoutine['wakeup'];
@@ -482,13 +426,12 @@ Be friendly, supportive, and concise. If asked about topics outside the user's d
     return const TimeOfDay(hour: 8, minute: 0);
   }
 
-  // Schedule a notification - Alternative implementation
+  // Schedule a notification
   Future<void> _scheduleNotification(
       String title, String body, TimeOfDay time, int id) async {
     try {
       final now = DateTime.now();
-      final tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
+      DateTime scheduledDate = DateTime(
         now.year,
         now.month,
         now.day,
@@ -497,37 +440,27 @@ Be friendly, supportive, and concise. If asked about topics outside the user's d
       );
 
       // If the time has already passed today, schedule for tomorrow
-      final tz.TZDateTime effectiveDate =
-          scheduledDate.isBefore(tz.TZDateTime.now(tz.local))
-              ? scheduledDate.add(const Duration(days: 1))
-              : scheduledDate;
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
 
-      final androidPlatformChannelSpecifics = fln.AndroidNotificationDetails(
-        'daily_notifications',
-        'Daily Notifications',
-        channelDescription: 'Notifications for daily routines',
-        importance: fln.Importance.high,
-        priority: fln.Priority.high,
-      );
-
-      final iOSPlatformChannelSpecifics = fln.DarwinNotificationDetails();
-
-      final platformChannelSpecifics = fln.NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics,
-      );
-
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        effectiveDate,
-        platformChannelSpecifics,
-        // Simpler parameters that should work across versions
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            fln.UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: fln.DateTimeComponents.time,
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: id,
+          channelKey: 'reminder_channel',
+          title: title,
+          body: body,
+          notificationLayout: NotificationLayout.Default,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          hour: scheduledDate.hour,
+          minute: scheduledDate.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: true, // Repeat daily
+          preciseAlarm: true,
+        ),
       );
     } catch (e) {
       print('Error scheduling notification: $e');
@@ -572,27 +505,14 @@ Be friendly, supportive, and concise. If asked about topics outside the user's d
   // Send an immediate notification
   Future<void> sendImmediateNotification(String title, String body) async {
     try {
-      final androidPlatformChannelSpecifics = fln.AndroidNotificationDetails(
-        'immediate_notifications',
-        'Immediate Notifications',
-        channelDescription:
-            'Notifications that should be delivered immediately',
-        importance: fln.Importance.high,
-        priority: fln.Priority.high,
-      );
-
-      final iOSPlatformChannelSpecifics = fln.DarwinNotificationDetails();
-
-      final platformChannelSpecifics = fln.NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics,
-      );
-
-      await flutterLocalNotificationsPlugin.show(
-        0,
-        title,
-        body,
-        platformChannelSpecifics,
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 0,
+          channelKey: 'basic_channel',
+          title: title,
+          body: body,
+          notificationLayout: NotificationLayout.Default,
+        ),
       );
     } catch (e) {
       print('Error sending immediate notification: $e');

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:mydaymate/core/routes/app_routes.dart';
 import 'package:mydaymate/features/add_expences_or_incomes/view/add_expences_page.dart';
 import 'package:mydaymate/features/add_expences_or_incomes/view/add_incomes_page.dart';
+
 import 'package:mydaymate/features/financial_planner/binding/financial_planner_binding.dart';
 import 'package:mydaymate/features/financial_planner/view/financial_planner_page.dart';
 import 'package:mydaymate/features/grocery/binding/grocery_binding.dart';
@@ -20,11 +21,11 @@ import 'package:mydaymate/features/task/binding/task_binding.dart';
 import 'package:mydaymate/features/task/binding/task_list_binding.dart';
 import 'package:mydaymate/features/task/view/task_create_page.dart';
 import 'package:mydaymate/features/task/view/task_list_page.dart';
-import 'package:mydaymate/features/chatbot/binding/chatbot_binding.dart';
-import 'package:mydaymate/features/chatbot/view/chatbot_page.dart';
 
 import '../../features/add_expences_or_incomes/binding/expense_binding.dart';
 import '../../features/add_expences_or_incomes/binding/income_binding.dart';
+import 'package:mydaymate/features/chatbot/binding/chatbot_binding.dart';
+import 'package:mydaymate/features/chatbot/view/chatbot_page.dart';
 
 abstract class AppPages {
   static final List<GetPage> pages = [
@@ -93,11 +94,12 @@ abstract class AppPages {
       page: () => const GroceryPage(),
       binding: GroceryBinding(),
     ),
+
+    // Add this new route for chatbot
     GetPage(
       name: AppRoutes.chatbot,
       page: () => const ChatbotPage(),
       binding: ChatbotBinding(),
-      transition: Transition.fadeIn,
     ),
   ];
 }
