@@ -127,6 +127,13 @@ class HomePage extends GetView<HomeController> {
                   foregroundColor: Colors.white,
                 ),
               ),
+              // Add a button to the home page for the chatbot
+              FloatingActionButton(
+                heroTag: 'chatbotBtn',
+                onPressed: () => Get.toNamed(AppRoutes.chatbot),
+                backgroundColor: Theme.of(context).primaryColor,
+                child: const Icon(Icons.chat),
+              ),
             ],
           ),
         ),

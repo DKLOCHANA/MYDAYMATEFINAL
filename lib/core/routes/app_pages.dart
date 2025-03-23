@@ -5,9 +5,8 @@ import 'package:mydaymate/features/add_expences_or_incomes/view/add_incomes_page
 import 'package:mydaymate/features/financial_planner/binding/financial_planner_binding.dart';
 import 'package:mydaymate/features/financial_planner/view/financial_planner_page.dart';
 import 'package:mydaymate/features/grocery/binding/grocery_binding.dart';
-import 'package:mydaymate/features/grocery/binding/grocery_items_binding.dart';
-import 'package:mydaymate/features/grocery/view/grocery_items_page.dart';
-import 'package:mydaymate/features/grocery/view/grocery_list_page.dart';
+
+import 'package:mydaymate/features/grocery/view/grocery_page.dart';
 import 'package:mydaymate/features/home/binding/home_binding.dart';
 import 'package:mydaymate/features/home/view/home_page.dart';
 import 'package:mydaymate/features/onboard/binding/onboard_binding.dart';
@@ -21,6 +20,8 @@ import 'package:mydaymate/features/task/binding/task_binding.dart';
 import 'package:mydaymate/features/task/binding/task_list_binding.dart';
 import 'package:mydaymate/features/task/view/task_create_page.dart';
 import 'package:mydaymate/features/task/view/task_list_page.dart';
+import 'package:mydaymate/features/chatbot/binding/chatbot_binding.dart';
+import 'package:mydaymate/features/chatbot/view/chatbot_page.dart';
 
 import '../../features/add_expences_or_incomes/binding/expense_binding.dart';
 import '../../features/add_expences_or_incomes/binding/income_binding.dart';
@@ -89,13 +90,14 @@ abstract class AppPages {
     ),
     GetPage(
       name: AppRoutes.grocery,
-      page: () => const GroceryListPage(),
+      page: () => const GroceryPage(),
       binding: GroceryBinding(),
     ),
     GetPage(
-      name: AppRoutes.groceryItems,
-      page: () => const GroceryItemsPage(),
-      binding: GroceryItemsBinding(),
+      name: AppRoutes.chatbot,
+      page: () => const ChatbotPage(),
+      binding: ChatbotBinding(),
+      transition: Transition.fadeIn,
     ),
   ];
 }
