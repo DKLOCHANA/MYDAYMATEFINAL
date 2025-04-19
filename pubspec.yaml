@@ -78,6 +78,7 @@ flutter:
   assets:
     - assets/images/onboard/
     - assets/images/home/
+      # Add this specific file explicitly
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

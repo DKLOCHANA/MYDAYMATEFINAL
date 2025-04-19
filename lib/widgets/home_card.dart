@@ -1,134 +1,137 @@
 import 'package:flutter/material.dart';
 
-class MealPlannerContainer extends StatelessWidget {
-  const MealPlannerContainer({Key? key}) : super(key: key);
+class HomeCardContainer extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String backgroundImage;
+  final VoidCallback? onTap;
+  final double width;
+  final double height;
+  final Color borderColor;
+
+  const HomeCardContainer({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    required this.backgroundImage,
+    this.onTap,
+    this.width = 170,
+    this.height = 170,
+    this.borderColor = const Color(0xFF8BC1CA),
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 170,
-      height: 170,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF8BC1CA),
-          width: 2,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.lightBlue[100], // Fallback color if image fails to load
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: borderColor,
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Meal planner text
-          Positioned(
-            top: 15,
-            left: 15,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Meal Planner',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+        child: Stack(
+          children: [
+            // Background image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.asset(
+                backgroundImage,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  print('Error loading image: $error');
+                  return Center(
+                    child: Icon(
+                      Icons.image_not_supported,
+                      color: Theme.of(context).primaryColor,
+                      size: 48,
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Darkened overlay for better text readability
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                color: Colors.black.withOpacity(0.4),
+              ),
+            ),
+
+            // Text in center
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 3.0,
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(1, 1),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Plan Your Plate, Save Your Time',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF7F8C8D),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 3.0,
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(1, 1),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // Food bowl illustration
-          Positioned(
-            bottom: 10,
-            right: 10,
-            width: 70,
-            height: 70,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFF9F9F9),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/images/home/profile.png',
-                  width: 60,
-                  height: 60,
-                  // If you don't have the actual image, you can use a placeholder:
-                  // errorBuilder: (context, error, stackTrace) {
-                  //   return const Icon(Icons.restaurant, size: 40, color: Color(0xFF8BC1CA));
-                  // },
-                ),
+                ],
               ),
             ),
-          ),
-
-          // Food icon 1 (small)
-          Positioned(
-            top: 70,
-            right: 30,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFBF2DE),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/images/home/profile.png',
-                  width: 25,
-                  height: 25,
-                  // Placeholder alternative:
-                  // errorBuilder: (context, error, stackTrace) {
-                  //   return const Icon(Icons.egg_alt, size: 20, color: Color(0xFFE8A54A));
-                  // },
-                ),
-              ),
-            ),
-          ),
-
-          // Food icon 2 (small)
-          Positioned(
-            top: 50,
-            right: 80,
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: const BoxDecoration(
-                color: Color(0xFFE6F2F4),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/images/home/profile.png',
-                  width: 20,
-                  height: 20,
-                  // Placeholder alternative:
-                  // errorBuilder: (context, error, stackTrace) {
-                  //   return const Icon(Icons.fastfood, size: 15, color: Color(0xFF8BC1CA));
-                  // },
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+}
+
+// For backward compatibility, keep the MealPlannerContainer
+class MealPlannerContainer extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const MealPlannerContainer({Key? key, this.onTap}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return HomeCardContainer(
+      title: 'Meal Planner',
+      subtitle: 'Plan your meals',
+      backgroundImage: "assets/images/home/f1.png",
+      onTap: onTap,
     );
   }
 }

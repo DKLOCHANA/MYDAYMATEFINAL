@@ -18,6 +18,7 @@ abstract class AppRoutes {
   static const String grocery = '/grocery';
   static const String groceryItems = '/grocery-items';
   static const String chatbot = '/chatbot';
+  static const String recipe = '/recipe';
 
   // Add more routes as needed
 }

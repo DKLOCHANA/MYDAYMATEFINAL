@@ -17,6 +17,9 @@ import 'package:mydaymate/features/auth/view/login_page.dart';
 import 'package:mydaymate/features/auth/binding/auth_binding.dart';
 import 'package:mydaymate/features/profile/binding/profile_binding.dart';
 import 'package:mydaymate/features/profile/view/profile_page.dart';
+import 'package:mydaymate/features/receipe_planner/binding/receipe_binding.dart';
+
+import 'package:mydaymate/features/receipe_planner/view/receipe_planner.dart';
 import 'package:mydaymate/features/task/binding/task_binding.dart';
 import 'package:mydaymate/features/task/binding/task_list_binding.dart';
 import 'package:mydaymate/features/task/view/task_create_page.dart';
@@ -100,6 +103,11 @@ abstract class AppPages {
       name: AppRoutes.chatbot,
       page: () => const ChatbotPage(),
       binding: ChatbotBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.recipe,
+      page: () => receipe_planner(),
+      binding: ReceipeBinding(),
     ),
   ];
 }
