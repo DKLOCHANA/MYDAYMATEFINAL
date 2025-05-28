@@ -3,11 +3,13 @@ import 'package:get/get.dart';
 class Message {
   final String text;
   final bool isUser;
+  final String? imageUrl; // New field for images
   final DateTime timestamp;
 
   Message({
     required this.text,
     required this.isUser,
+    this.imageUrl,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -15,6 +17,7 @@ class Message {
     return {
       'text': text,
       'isUser': isUser,
+      'imageUrl': imageUrl,
       'timestamp': timestamp.toIso8601String(),
     };
   }
@@ -23,6 +26,7 @@ class Message {
     return Message(
       text: json['text'],
       isUser: json['isUser'],
+      imageUrl: json['imageUrl'],
       timestamp: DateTime.parse(json['timestamp']),
     );
   }

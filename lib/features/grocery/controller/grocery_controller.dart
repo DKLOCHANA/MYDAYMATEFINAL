@@ -206,6 +206,47 @@ class GroceryController extends GetxController {
     }
   }
 
+  // Add item with additional parameters
+  void addItemWithDetails({
+    required String name,
+    required String category,
+    double quantity = 1,
+    String unit = 'item',
+    bool needsRestock = true,
+    bool isPurchased = false,
+    double? price,
+  }) {
+    // Generate a unique ID
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Find the icon for the category
+    final categoryIcon = categories
+        .firstWhere((c) => c.name == category, orElse: () => categories.first)
+        .icon;
+
+    // Create the item
+    final item = GroceryItem(
+      id: id,
+      name: name,
+      category: category,
+      icon: categoryIcon,
+      quantity: quantity,
+      unit: unit,
+      needsRestock: needsRestock,
+      isPurchased: isPurchased,
+    );
+
+    // Add price if provided
+    if (price != null) {
+      item.price = price;
+    }
+
+    // Add to list
+    _items.add(item);
+    _saveItems(_items);
+    update();
+  }
+
   // Update an existing item
   Future<void> updateItem({
     required String id,
@@ -253,22 +294,37 @@ class GroceryController extends GetxController {
     }
   }
 
-  // Toggle purchased status
+  // Toggle purchased status with immediate UI update
   Future<void> togglePurchased(String id) async {
     try {
       final index = _items.indexWhere((item) => item.id == id);
       if (index != -1) {
         final item = _items[index];
         final updatedItem = item.copyWith(
-          isPurchased: !item.isPurchased,
-          // If item is purchased, it no longer needs restocking
-          needsRestock: item.isPurchased ? false : item.needsRestock,
+          // When checked, remove from restock list but DON'T mark as purchased
+          // This will prevent strikethrough in the main list
+          needsRestock: false,
+          isPurchased: false,
         );
 
+        // Update immediately for reactive UI
         _items[index] = updatedItem;
-        await _saveItems(_items);
+
+        // Force refresh to update UI immediately
+        _items.refresh();
+
+        // Then save in the background
+        _saveItems(_items).catchError((error) {
+          print('Error saving items: $error');
+          Get.snackbar(
+            'Error',
+            'Failed to save changes',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        });
       }
     } catch (e) {
+      print('Error toggling purchased state: $e');
       Get.snackbar(
         'Error',
         'Failed to update item',
@@ -297,6 +353,28 @@ class GroceryController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     }
+  }
+
+  // Add a helper method to check if a specific ingredient is available in grocery list
+  bool hasIngredient(String ingredient) {
+    final normalizedIngredient = ingredient.toLowerCase().trim();
+
+    for (var item in _items) {
+      if (item.name.toLowerCase().contains(normalizedIngredient) ||
+          normalizedIngredient.contains(item.name.toLowerCase())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // Get a list of all available ingredients (not needing restock)
+  List<String> getAvailableIngredients() {
+    return _items
+        .where((item) => !item.needsRestock)
+        .map((item) => item.name.toLowerCase())
+        .toList();
   }
 
   // Return sample items for first-time users

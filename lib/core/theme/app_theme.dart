@@ -2,40 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:mydaymate/core/theme/app_colors.dart';
 import 'package:mydaymate/core/theme/app_text_styles.dart';
 
+import 'package:mydaymate/core/utils/devices.dart';
+
 class AppTheme {
-  static ThemeData get theme {
+  static ThemeData theme(BuildContext context) {
     return ThemeData(
       textTheme: TextTheme(
-        headlineLarge: AppTextStyles.headlineLarge,
-        headlineMedium: AppTextStyles.headlineMedium,
-        bodyLarge: AppTextStyles.bodyLarge,
-        bodyMedium: AppTextStyles.bodyMedium,
-        bodySmall: AppTextStyles.bodySmall,
-        titleLarge: AppTextStyles.titleLarge,
+        headlineLarge: AppTextStyles.headlineLarge(context),
+        headlineMedium: AppTextStyles.headlineMedium(context),
+        bodyLarge: AppTextStyles.bodyLarge(context),
+        bodyMedium: AppTextStyles.bodyMedium(context),
+        bodySmall: AppTextStyles.bodySmall(context),
+        titleLarge: AppTextStyles.titleLarge(context),
       ),
-      scaffoldBackgroundColor: AppColors.backgroundColor,
+      scaffoldBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
       colorScheme: ColorScheme(
-          brightness: Brightness.light,
-          primary: AppColors.primary,
-          onPrimary: AppColors.black,
-          secondary: AppColors.secondary,
-          onSecondary: AppColors.black,
-          error: AppColors.error,
-          onError: AppColors.black,
-          surface: AppColors.surface,
-          onSurface: AppColors.onSurface),
+        brightness: Brightness.light,
+        primary: AppColors.primary,
+        onPrimary: AppColors.black,
+        secondary: AppColors.secondary,
+        onSecondary: AppColors.black,
+        error: AppColors.error,
+        onError: AppColors.black,
+        surface: AppColors.surface,
+        onSurface: AppColors.onSurface,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.secondary,
-        foregroundColor: AppColors.black,
-        elevation: 0,
-        minimumSize:
-            const Size(double.infinity, 48), // Full width with height of 48
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(AppColors.secondary),
+          foregroundColor: MaterialStateProperty.all(AppColors.black),
+          elevation: MaterialStateProperty.all(0),
+          minimumSize: MaterialStateProperty.all(
+            Size(
+                double.infinity, DeviceLayout.getProportionateScreenHeight(48)),
+          ),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(DeviceLayout.spacing(15)),
+            ),
+          ),
+          textStyle:
+              MaterialStateProperty.all(AppTextStyles.titleLarge(context)),
         ),
-        textStyle: AppTextStyles.titleLarge,
-      )),
+      ),
     );
   }
 }

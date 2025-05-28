@@ -1,7 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mydaymate/features/chatbot/controller/chatbot_controller.dart';
 import 'package:mydaymate/features/chatbot/model/chatbot_model.dart';
+import 'package:mydaymate/features/home/controller/home_controller.dart';
+import 'package:mydaymate/widgets/custom_appbar.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatbotPage extends GetView<ChatbotController> {
   const ChatbotPage({Key? key}) : super(key: key);
@@ -9,17 +16,7 @@ class ChatbotPage extends GetView<ChatbotController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Day Mate'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              _showUserProfileModal(context);
-            },
-          ),
-        ],
-      ),
+      appBar: CustomAppbar(title: "Assistant"),
       body: Column(
         children: [
           // Chat messages list
@@ -78,11 +75,27 @@ class ChatbotPage extends GetView<ChatbotController> {
                     isUser ? Theme.of(context).primaryColor : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color: isUser ? Colors.white : Colors.black,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message.text,
+                    style: TextStyle(
+                      color: isUser ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  if (message.imageUrl != null) ...[
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        File(message.imageUrl!),
+                        width: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
@@ -92,22 +105,54 @@ class ChatbotPage extends GetView<ChatbotController> {
     );
   }
 
-  // Build avatar for messages
+  // Update the _buildAvatar method to use the user's profile photo
   Widget _buildAvatar(bool isUser) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0),
-      child: CircleAvatar(
-        backgroundColor: isUser ? Colors.blue[800] : Colors.green[600],
-        child: Icon(
-          isUser ? Icons.person : Icons.smart_toy,
-          color: Colors.white,
-          size: 20,
+    if (isUser) {
+      // Use Obx here to reactively update when profile image changes
+      return Obx(() {
+        final profileImagePath =
+            Get.find<HomeController>().profileImagePath.value;
+
+        // If user has a profile image, use it
+        if (profileImagePath != null && profileImagePath.isNotEmpty) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              backgroundImage: FileImage(File(profileImagePath)),
+            ),
+          );
+        }
+        // Otherwise use default avatar
+        return Padding(
+          padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.blue[800],
+            child: Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        );
+      });
+    } else {
+      // Bot avatar remains the same
+      return Padding(
+        padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+        child: CircleAvatar(
+          backgroundColor: Colors.green[600],
+          child: Icon(
+            Icons.smart_toy,
+            color: Colors.white,
+            size: 20,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
-  // Build the input area
+  // Build the input area with voice and image options
   Widget _buildInputArea(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -124,6 +169,26 @@ class ChatbotPage extends GetView<ChatbotController> {
       ),
       child: Row(
         children: [
+          // Voice input button
+          Obx(() => IconButton(
+                icon: Icon(
+                  controller.isListening.value ? Icons.mic : Icons.mic_none,
+                  color: controller.isListening.value
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+                onPressed: () => _handleVoiceInput(context),
+              )),
+
+          // Image upload button
+          IconButton(
+            icon: const Icon(Icons.receipt_long),
+            color: Colors.grey,
+            tooltip: 'Upload Receipt',
+            onPressed: () => _pickImage(context),
+          ),
+
+          // Text input field
           Expanded(
             child: TextField(
               controller: controller.textController,
@@ -164,6 +229,59 @@ class ChatbotPage extends GetView<ChatbotController> {
         ],
       ),
     );
+  }
+
+  // Handle voice input
+  Future<void> _handleVoiceInput(BuildContext context) async {
+    if (controller.isListening.value) {
+      await controller.stopListening();
+    } else {
+      final status = await Permission.microphone.request();
+      if (status.isGranted) {
+        await controller.startListening();
+      } else {
+        Get.snackbar(
+          'Permission Required',
+          'Microphone permission is needed for voice input',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    }
+  }
+
+  // Pick image from gallery or camera
+  Future<void> _pickImage(BuildContext context) async {
+    final ImageSource? source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Photo Gallery'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Camera'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      controller.processReceiptImage(image.path);
+    }
   }
 
   // Show user profile modal

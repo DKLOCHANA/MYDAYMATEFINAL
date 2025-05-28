@@ -37,11 +37,14 @@ class CustomTextfield extends StatelessWidget {
         readOnly: readOnly ?? false,
         onChanged: onChanged,
         maxLines: maxLines,
-        style: TextStyle(fontSize: DeviceLayout.fontSize(14)),
+        style: TextStyle(
+          fontSize: DeviceLayout.fontSize(14),
+          color: Colors.grey[800],
+        ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: AppColors.backgroundColor.withOpacity(0.7),
+            color: Colors.grey[500],
             fontSize: DeviceLayout.fontSize(14),
           ),
           prefixIcon: prefixIcon,
@@ -50,16 +53,19 @@ class CustomTextfield extends StatelessWidget {
             horizontal: DeviceLayout.spacing(16),
             vertical: DeviceLayout.spacing(12),
           ),
+          filled: true,
+          fillColor: Colors.grey[100],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DeviceLayout.spacing(15)),
+            borderSide: BorderSide(color: Colors.grey[400]!),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DeviceLayout.spacing(15)),
-            borderSide: BorderSide(color: AppColors.backgroundColor),
+            borderSide: BorderSide(color: Colors.grey[400]!),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DeviceLayout.spacing(15)),
-            borderSide: BorderSide(color: AppColors.primary),
+            borderSide: BorderSide(color: Colors.grey[600]!),
           ),
         ),
       ),

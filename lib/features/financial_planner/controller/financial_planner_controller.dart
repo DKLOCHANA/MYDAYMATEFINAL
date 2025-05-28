@@ -266,7 +266,7 @@ class FinancialPlannerController extends GetxController {
     Get.dialog(
       AlertDialog(
         title: Text(
-          'Select Transaction Type',
+          'Transaction Type',
           style: Get.textTheme.titleLarge?.copyWith(
             color: Get.theme.primaryColor,
           ),
@@ -304,38 +304,61 @@ class FinancialPlannerController extends GetxController {
     required bool isIncome,
     required VoidCallback onTap,
   }) {
+    final Color primaryColor =
+        isIncome ? Colors.greenAccent.shade700 : Colors.redAccent.shade700;
+
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          color: Get.theme.cardColor,
-          borderRadius: BorderRadius.circular(10),
+          color: primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: primaryColor.withOpacity(0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: primaryColor.withOpacity(0.15),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isIncome
-                      ? Get.theme.primaryColor
-                      : Get.theme.colorScheme.error,
-                  width: 2,
-                ),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
               child: Icon(
-                isIncome ? Icons.arrow_upward : Icons.arrow_downward,
-                color: isIncome
-                    ? Get.theme.primaryColor
-                    : Get.theme.colorScheme.error,
+                isIncome
+                    ? Icons.arrow_upward_rounded
+                    : Icons.arrow_downward_rounded,
+                color: primaryColor,
+                size: 22,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 16),
             Text(
               title,
-              style: Get.textTheme.bodyLarge,
+              style: Get.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Get.isDarkMode ? Colors.white : Colors.black87,
+              ),
+            ),
+            const Spacer(),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: primaryColor.withOpacity(0.7),
             ),
           ],
         ),

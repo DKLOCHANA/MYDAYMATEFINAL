@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/devices.dart';
 import '../../../widgets/custom_appbar.dart';
@@ -30,9 +32,43 @@ class ProfilePage extends GetView<ProfileController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircleAvatar(
-                radius: 50,
-                backgroundImage: AssetImage('assets/images/home/profile.png'),
+              GestureDetector(
+                onTap: () => _showImageSourceActionSheet(context),
+                child: Stack(
+                  children: [
+                    Obx(() {
+                      if (controller.profileImagePath.value.isNotEmpty) {
+                        return CircleAvatar(
+                          radius: 50,
+                          backgroundImage: FileImage(
+                              File(controller.profileImagePath.value)),
+                        );
+                      } else {
+                        return const CircleAvatar(
+                          radius: 50,
+                          backgroundImage:
+                              AssetImage('assets/images/home/profile.png'),
+                        );
+                      }
+                    }),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: DeviceLayout.spacing(20)),
               _buildProfileItem(
@@ -89,26 +125,58 @@ class ProfilePage extends GetView<ProfileController> {
                 icon: Icons.calendar_today_outlined,
                 onTap: () => _showDateBottomSheet(context),
               ),
-              const Spacer(),
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.only(bottom: DeviceLayout.spacing(20)),
-                child: ElevatedButton(
-                  onPressed: controller.signOut,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: EdgeInsets.symmetric(
-                        vertical: DeviceLayout.spacing(12)),
-                  ),
-                  child: Text(
-                    'Sign Out',
-                    style: TextStyle(
-                      fontSize: DeviceLayout.fontSize(16),
-                      color: Colors.white,
-                    ),
+              _buildProfileItem(
+                context: context,
+                title: 'Emergency Contact',
+                value: userData['emergencyContact'] ?? '',
+                icon: Icons.contact_emergency_outlined,
+                onTap: () => _showEditBottomSheet(
+                  context: context,
+                  title: 'Emergency Contact',
+                  controller: controller.editEmergencyContactController,
+                  keyboardType: TextInputType.phone,
+                  onSave: () => controller.updateField(
+                    'emergencyContact',
+                    controller.editEmergencyContactController.text,
                   ),
                 ),
               ),
+              const Spacer(),
+              AnimatedContainer(
+                duration: const Duration(seconds: 3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromARGB(255, 250, 1, 1), // Bold Red
+                      Color.fromARGB(255, 250, 1, 1), // Light Red
+                      Color.fromARGB(255, 250, 1, 1), // Dark blue
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.6, 1.0, 0.2],
+                  ),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(bottom: DeviceLayout.spacing(10)),
+                  child: ElevatedButton.icon(
+                    onPressed: controller.signOut,
+                    icon: const Icon(Icons.logout,
+                        color: Colors.white), // Icon at the start
+                    label: const Text('Sign Out',
+                        style: TextStyle(
+                            color: Colors.white)), // Text in the middle
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                          vertical: DeviceLayout.spacing(10)),
+                      elevation: 0, // Remove the shadow
+                      backgroundColor: Colors
+                          .transparent, // Make button background transparent
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         );
@@ -126,11 +194,20 @@ class ProfilePage extends GetView<ProfileController> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(DeviceLayout.spacing(16)),
+        padding: EdgeInsets.all(DeviceLayout.spacing(10)),
         margin: EdgeInsets.only(bottom: DeviceLayout.spacing(16)),
         decoration: BoxDecoration(
           color: AppColors.backgroundColor,
           borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 5), // changes position of shadow
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -143,7 +220,7 @@ class ProfilePage extends GetView<ProfileController> {
                   Text(title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.black, fontWeight: FontWeight.bold)),
-                  Text(value, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(value, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),
@@ -229,6 +306,46 @@ class ProfilePage extends GetView<ProfileController> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showImageSourceActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Photo Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.pickImage(ImageSource.camera);
+                },
+              ),
+              if (controller.profileImagePath.value.isNotEmpty)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text('Remove Photo',
+                      style: TextStyle(color: Colors.red)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    controller.removeProfileImage();
+                  },
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

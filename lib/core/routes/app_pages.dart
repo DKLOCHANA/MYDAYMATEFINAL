@@ -29,6 +29,8 @@ import '../../features/add_expences_or_incomes/binding/expense_binding.dart';
 import '../../features/add_expences_or_incomes/binding/income_binding.dart';
 import 'package:mydaymate/features/chatbot/binding/chatbot_binding.dart';
 import 'package:mydaymate/features/chatbot/view/chatbot_page.dart';
+import 'package:mydaymate/features/what_can_i_cook/binding/what_can_i_cook_binding.dart';
+import 'package:mydaymate/features/what_can_i_cook/view/what_can_i_cook_page.dart';
 
 abstract class AppPages {
   static final List<GetPage> pages = [
@@ -108,6 +110,11 @@ abstract class AppPages {
       name: AppRoutes.recipe,
       page: () => receipe_planner(),
       binding: ReceipeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.whatCanICook,
+      page: () => const WhatCanICookPage(),
+      binding: WhatCanICookBinding(),
     ),
   ];
 }

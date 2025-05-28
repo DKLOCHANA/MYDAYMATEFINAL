@@ -5,16 +5,27 @@ import 'package:mydaymate/features/receipe_planner/controller/recipe_controller.
 import 'package:mydaymate/features/receipe_planner/model/recipe.dart';
 import 'package:mydaymate/features/receipe_planner/view/recipe_detail_page.dart';
 
-class RecipeCard extends GetView<FavoritesController> {
+class RecipeCard extends StatelessWidget {
   final Recipe recipe;
 
   RecipeCard({required this.recipe});
 
   @override
   Widget build(BuildContext context) {
+    // Ensure controllers are initialized
+    if (!Get.isRegistered<FavoritesController>()) {
+      Get.put(FavoritesController());
+    }
+    if (!Get.isRegistered<RecipeController>()) {
+      Get.put(RecipeController());
+    }
+
+    final FavoritesController favoritesController =
+        Get.find<FavoritesController>();
+    final RecipeController recipeController = Get.find<RecipeController>();
+
     return GestureDetector(
       onTap: () {
-        final RecipeController recipeController = Get.find<RecipeController>();
         recipeController.getRecipeDetail(recipe.id);
         Get.to(() => RecipeDetailPage());
       },

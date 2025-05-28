@@ -9,6 +9,7 @@ class GroceryItem {
   String unit;
   bool isPurchased;
   bool needsRestock;
+  double? price; // New field for price
 
   GroceryItem({
     required this.id,
@@ -19,6 +20,7 @@ class GroceryItem {
     this.unit = 'item',
     this.isPurchased = false,
     this.needsRestock = false,
+    this.price,
   });
 
   // Convert to JSON for storage
@@ -32,6 +34,7 @@ class GroceryItem {
       'unit': unit,
       'isPurchased': isPurchased,
       'needsRestock': needsRestock,
+      'price': price,
     };
   }
 
@@ -46,6 +49,7 @@ class GroceryItem {
       unit: json['unit'],
       isPurchased: json['isPurchased'],
       needsRestock: json['needsRestock'],
+      price: json['price'],
     );
   }
 
@@ -58,6 +62,7 @@ class GroceryItem {
     String? unit,
     bool? isPurchased,
     bool? needsRestock,
+    double? price,
   }) {
     return GroceryItem(
       id: this.id,
@@ -68,6 +73,7 @@ class GroceryItem {
       unit: unit ?? this.unit,
       isPurchased: isPurchased ?? this.isPurchased,
       needsRestock: needsRestock ?? this.needsRestock,
+      price: price ?? this.price,
     );
   }
 

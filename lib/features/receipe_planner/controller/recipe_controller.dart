@@ -278,6 +278,17 @@ class RecipeController extends GetxController {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         recipes.value = data.map((json) => Recipe.fromJson(json)).toList();
+
+        // Include recipes in filtered recipes
+        filteredRecipes.value = recipes;
+
+        // Also update favorite status for each recipe
+        final favoritesController = Get.find<FavoritesController>();
+        for (var recipe in recipes) {
+          recipe.isFavorite = favoritesController.isRecipeFavorite(recipe.id);
+        }
+
+        // Apply any active filters
         applyFilters();
       }
     } catch (e) {
