@@ -524,7 +524,7 @@ class WhatCanICookPage extends GetView<WhatCanICookController> {
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(sizing.padding * 0.6),
+              padding: EdgeInsets.all(sizing.padding * 0.5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
